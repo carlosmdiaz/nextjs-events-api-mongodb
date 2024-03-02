@@ -1,7 +1,6 @@
 export async function getAllEvents() {
-  const response = await fetch('https://nextjs-course-c81cc-default-rtdb.firebaseio.com/events.json');
+  const response = await fetch('https://nextjs-course-2-fc7dd-default-rtdb.firebaseio.com/events.json');
   const data = await response.json();
-
   const events = [];
 
   for (const key in data) {
@@ -15,8 +14,10 @@ export async function getAllEvents() {
 }
 
 export async function getFeaturedEvents() {
+  console.log(await getAllEvents());
   const allEvents = await getAllEvents();
-  return allEvents.filter((event) => event.isFeatured);
+  console.log(allEvents);
+  return allEvents.filter((event) => event.isFeature);
 }
 
 export async function getEventById(id) {
@@ -36,3 +37,5 @@ export async function getFilteredEvents(dateFilter) {
 
   return filteredEvents;
 }
+
+export function 
