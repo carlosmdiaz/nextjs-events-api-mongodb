@@ -15,6 +15,20 @@ function Comments(props) {
 
   function addCommentHandler(commentData) {
     // send data to API
+    const newComment = {
+      email: commentData.email,
+      name: commentData.name,
+      text: commentData.text,
+    }
+    fetch('/api/comments', {
+      method: 'POST',
+      body: JSON.stringify(newComment),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then((response) => response.json())
+    .then((data) => console.log(data));
   }
 
   return (

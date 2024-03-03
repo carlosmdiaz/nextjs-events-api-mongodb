@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 export async function getAllEvents() {
   const response = await fetch('https://nextjs-course-2-fc7dd-default-rtdb.firebaseio.com/events.json');
   const data = await response.json();
@@ -14,9 +17,7 @@ export async function getAllEvents() {
 }
 
 export async function getFeaturedEvents() {
-  console.log(await getAllEvents());
   const allEvents = await getAllEvents();
-  console.log(allEvents);
   return allEvents.filter((event) => event.isFeature);
 }
 
@@ -38,4 +39,21 @@ export async function getFilteredEvents(dateFilter) {
   return filteredEvents;
 }
 
-export function 
+export function buildNewsletterPath(){
+  return path.join(process.cwd(), 'data', 'newsletter.json');
+}
+
+export function extractData(filePath){
+  console.log(filePath);
+  const fileData = fs.readFileSync(filePath);
+  const data = JSON.parse(fileData);
+  return data;
+}
+
+export function writeToFile(filePath, data){
+  fs.writeFileSync(filePath, JSON.stringify(data));
+}
+
+export function buildCommentsPath(){
+  return path.join(process.cwd(), 'data', 'comments.json');
+}
