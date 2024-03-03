@@ -5,6 +5,19 @@ function handler(req, res) {
         const email = req.body.email;
         const name = req.body.name;
         const text = req.body.text;
+
+        if (
+            !email ||
+            email.trim() === '' ||
+            !email.includes('@') ||
+            !name ||
+            name.trim() === '' ||
+            !comment ||
+            comment.trim() === ''
+          ) {
+            res.status(422).json({message: 'Invalid Input.'});
+            return;
+          }
         const newComment = {
             id: new Date().toISOString(),
             email: email,
@@ -18,7 +31,8 @@ function handler(req, res) {
         data.push(newComment);
         writeToFile(fileData, data);
         res.status(201).json({message: 'Success', comments: newComment})
-    } else {
+    }
+    if(req.method === 'GET'){
         const filePath = buildCommentsPath();
         const data = extractData(filePath);
         res.status(200).json({comments: data});

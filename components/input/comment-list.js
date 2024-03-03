@@ -1,18 +1,10 @@
-import { useState } from 'react';
 import classes from './comment-list.module.css';
 
-function CommentList() {
-  const [loadComments, setLoadComments] = useState([]);
-
-  fetch('/api/comments')
-  .then((response) => response.json())
-  .then((data) => {
-    setLoadComments(data.comments);
-  });
-  
+function CommentList(props) {
+  const { comments } = props;
   return (
     <ul className={classes.comments}>
-      {loadComments.map((comment) => (
+      {comments.map((comment) => (
         <li key={comment.id}>
           <p>{comment.text}</p>
           <div>
