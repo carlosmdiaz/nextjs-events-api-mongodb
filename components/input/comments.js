@@ -12,7 +12,7 @@ function Comments(props) {
 
   useEffect(() => {
     if(showComments) {
-      fetch('/api/comments')
+      fetch('/api/comments' + eventId)
       .then((response) => response.json())
       .then((data) => {
         setComments(data.comments);
@@ -31,7 +31,7 @@ function Comments(props) {
       name: commentData.name,
       text: commentData.text,
     }
-    fetch('/api/comments', {
+    fetch(`/api/comments/${eventId}`, {
       method: 'POST',
       body: JSON.stringify(newComment),
       headers: {
