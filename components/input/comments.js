@@ -8,17 +8,19 @@ function Comments(props) {
   const { eventId } = props;
 
   const [showComments, setShowComments] = useState(false);
+  const [boolComment, setBoolComment] = useState(false);
   const [comments, setComments] = useState([]);
 
   useEffect(() => {
     if(showComments) {
-      fetch('/api/comments' + eventId)
+      fetch('/api/comments/' + eventId)
       .then((response) => response.json())
       .then((data) => {
         setComments(data.comments);
+        setBoolComment(false);
       });
     }
-  }, [showComments]);
+  }, [showComments, boolComment]);
 
   function toggleCommentsHandler() {
     setShowComments((prevStatus) => !prevStatus);
@@ -26,6 +28,7 @@ function Comments(props) {
 
   function addCommentHandler(commentData) {
     // send data to API
+    setBoolComment(true);
     const newComment = {
       email: commentData.email,
       name: commentData.name,

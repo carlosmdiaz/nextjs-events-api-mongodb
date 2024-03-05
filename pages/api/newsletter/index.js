@@ -1,8 +1,7 @@
-import { MongoClient } from "mongodb";
+
+import { insertDocument, connectDatabase } from "../../../helpers/db-util";
 
 async function handler(req, res) {
-    const url = 'mongodb://memelo:Memelo2020@ac-3ryswgt-shard-00-00.1bpni6a.mongodb.net:27017,ac-3ryswgt-shard-00-01.1bpni6a.mongodb.net:27017,ac-3ryswgt-shard-00-02.1bpni6a.mongodb.net:27017/events?ssl=true&replicaSet=atlas-aa944x-shard-0&authSource=admin&retryWrites=true&w=majority&appName=FirstMongoDBProject';
-    console.log(req)
     if(req.method === 'POST') {
         const email = req.body.email;
 
@@ -11,11 +10,23 @@ async function handler(req, res) {
             return;
         }
 
-        const client = await MongoClient.connect(url);
-        const db = client.db();
-        await db.collection('newsletter').insertOne({email: email,});
-        client.close();
+        let client;
+        try {
+            client = await connectDatabase();
+        } catch (error) {
+            res.status(500).json({ message: 'Connecting to the database failed!' });
+            return;
+        }
 
+        try {
+            await insertDocument(client, 'newsletter', { email: email});
+            client.close();
+        } catch (error) {
+            res.status(500).json({ message: 'Inserting data failed!' });
+            client.close();
+            return;
+        }
+        
         res.status(201).json({message: "Signed Up!"});
     } else {
         res.status(200).json({message: 'Success'});

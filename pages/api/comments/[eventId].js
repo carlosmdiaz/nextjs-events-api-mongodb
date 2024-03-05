@@ -1,14 +1,20 @@
-import { buildCommentsPath, extractData, writeToFile } from "../../../helpers/api-util";
-import { MongoClient } from "mongodb";
+
+import { insertDocument, connectDatabase, getDocument } from "../../../helpers/db-util";
 
 async function handler(req, res) {
     const eventId = req.query.eventId;
-    const url = 'mongodb://memelo:Memelo2020@ac-3ryswgt-shard-00-00.1bpni6a.mongodb.net:27017,ac-3ryswgt-shard-00-01.1bpni6a.mongodb.net:27017,ac-3ryswgt-shard-00-02.1bpni6a.mongodb.net:27017/events?ssl=true&replicaSet=atlas-aa944x-shard-0&authSource=admin&retryWrites=true&w=majority&appName=FirstMongoDBProject';
+    let client;
+    try {
+        client = await connectDatabase();
+    } catch (error) {
+        res.status(500).json({ message: 'Connecting to the database failed!' })
+        return;
+    }
 
     if(req.method === "POST") {
         const email = req.body.email;
         const name = req.body.name;
-        const text = req.body.text;
+        const comment = req.body.text;
 
         if (
             !email ||
@@ -26,22 +32,32 @@ async function handler(req, res) {
         const newComment = {
             email: email,
             name: name,
-            text: text,
+            text: comment,
             eventId: eventId,
         }
-
-        const client = await MongoClient.connect(url);
-        const db = client.db();
-        const result = await db.collection('comments').insertOne(newComment);
-        console.log(result);
-        
-        res.status(201).json({message: 'Success', comments: newComment})
+        let result;
+        try {
+            result = await insertDocument(client, 'comments', newComment);
+            newComment._id = result.insertedId;
+            res.status(201).json({message: 'Success', comments: newComment});
+        } catch (error) {
+            res.status(500).json({ message: 'Inserting data failed!'});
+            client.close();
+            return;
+        }
     }
     if(req.method === 'GET'){
-        const filePath = buildCommentsPath();
-        const data = extractData(filePath);
-        res.status(200).json({comments: data});
+        let result;
+        try {
+            result = await getDocument(client, 'comments', eventId);
+            console.log(result);
+            res.status(200).json({comments: result});
+        } catch (error) {
+            res.status(500).json({ message: 'Getting comments failed!' });
+        }
     }
+
+    client.close();
 }
 
 export default handler;
